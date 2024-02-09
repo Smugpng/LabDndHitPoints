@@ -4,10 +4,10 @@ using UnityEngine;
 
 public class Scripts : MonoBehaviour
 {
-    
+    [SerializeField]
     public string charaterName;
     public int charaterLvl;
-    public  int conScore;
+    public int conScore;
     public bool isHillDawrf;
     public bool hasTough;
     public bool isAvg;
@@ -68,9 +68,10 @@ public class Scripts : MonoBehaviour
     {
         CheckValues(conScore, classInput);
     }
-
-    void CheckValues(int con, string class)
+    int die;
+    void CheckValues(int con, string classname)
     {
-
+        if (classHitDie.TryGetValue("classInput", out die)) ;//would this even worK? lets find out tmmrw
     }
+
 }
