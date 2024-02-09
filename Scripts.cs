@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using Unity.VisualScripting;
 using UnityEngine;
 
 public class Scripts : MonoBehaviour
@@ -13,8 +14,10 @@ public class Scripts : MonoBehaviour
     public bool isAvg;
     public string classInput;
 
-    Dictionary<string, int> classHitDie = new Dictionary<string, int>()
+    public int CalcTotalHp()
     {
+        Dictionary<string, int> hitDice = new Dictionary<string, int>()
+        {
         {"Artificer",8},
         {"Barbarian", 12},
         {"Bard", 8},
@@ -28,9 +31,9 @@ public class Scripts : MonoBehaviour
         {"Sorcerer", 6},
         {"Wizard", 6},
         {"Warlock", 8}
-    };
-    Dictionary<int, int> conScoreFind = new Dictionary<int, int>()
-    {
+        };
+        Dictionary<int, int> conScoreFind = new Dictionary<int, int>()
+        {
         {1,-5},
         {2,-4},
         {3,-4},
@@ -62,16 +65,43 @@ public class Scripts : MonoBehaviour
         {29,9},
         {30,10}
 
-    };
-    // Start is called before the first frame update
+        };
+
+        int hp = 0;
+        if (hitDice.ContainsKey(Class))
+        {
+            int hitDie = hitDice[Class];
+            int totalHitDice = GetTotalHitDice();
+            int conModifier = GetConModifier();
+
+            hp = totalHitDice + hitDie + (totalHitDice * conModifier);
+
+        }
+        if (isHillDawrf)
+        {
+            hp += 1;
+        }
+        if (hasTough)
+        {
+            hp += (2 * GetTotalHitDice());
+        }
+        return hp;
+    }
+    private int GetTotalHitDice()
+    {
+        return 1 + charaterLvl;
+    }
+    private int GetConModifier()
+    {
+        //??
+    }
     void Start()
     {
         CheckValues(conScore, classInput);
     }
     int die;
-    void CheckValues(int con, string classname)
-    {
-        if (classHitDie.TryGetValue("classInput", out die)) ;//would this even worK? lets find out tmmrw
-    }
+
+
+
 
 }
