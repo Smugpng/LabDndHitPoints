@@ -91,17 +91,17 @@ public class Scripts : MonoBehaviour
     {
         return 1 + charaterLvl;
     }
-    private int GetConModifier()
+    class Program
     {
-        //??
+        static void Main(string[] args)
+        {
+            
+            Player player = new Player("John", "Fighter", 16, true, true);
+            int totalHP = player.CalculateTotalHP();
+            Console.WriteLine($"Total HP for {player.Name} is {totalHP}");
+        }
     }
-    void Start()
-    {
-        CheckValues(conScore, classInput);
-    }
-    int die;
-
-
+    //???
 
 
 }
