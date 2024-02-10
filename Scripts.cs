@@ -96,7 +96,7 @@ public class Scripts : MonoBehaviour
         static void Main(string[] args)
         {
             
-            Player player = new Player("John", "Fighter", 16, true, true);
+            Player player = new Player("charaterName", "classInput", "charaterLvl", true, true);
             int totalHP = player.CalculateTotalHP();
             Console.WriteLine($"Total HP for {player.Name} is {totalHP}");
         }
