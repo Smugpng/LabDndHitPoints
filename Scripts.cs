@@ -1,3 +1,4 @@
+using System.Buffers.Text;
 using System.Collections;
 using System.Collections.Generic;
 using Unity.VisualScripting;
@@ -7,34 +8,16 @@ public class Scripts : MonoBehaviour
 {
     [SerializeField]
     public string charaterName;
-    public int charaterLvl;
+    public int characterLvl;
+    public string classInput;
     public int conScore;
-    public bool isHillDawrf;
+    public bool isHillDwarf;
     public bool hasTough;
     public bool isAvg;
-    public string classInput;
 
-    public int CalcTotalHp()
-    {
-        Dictionary<string, int> hitDice = new Dictionary<string, int>()
+    public Dictionary<int, int> conDict = new Dictionary<int, int>()
         {
-        {"Artificer",8},
-        {"Barbarian", 12},
-        {"Bard", 8},
-        {"Cleric", 8},
-        {"Druid", 8},
-        {"Fighter", 10},
-        {"Monk", 8},
-        {"Ranger", 10},
-        {"Rogue", 8},
-        {"Paladin", 10},
-        {"Sorcerer", 6},
-        {"Wizard", 6},
-        {"Warlock", 8}
-        };
-        Dictionary<int, int> conScoreFind = new Dictionary<int, int>()
-        {
-        {1,-5},
+            {1,-5},
         {2,-4},
         {3,-4},
         {4,-3},
@@ -64,44 +47,138 @@ public class Scripts : MonoBehaviour
         {28,9},
         {29,9},
         {30,10}
-
+        };
+    public Dictionary<string, int> classDict = new Dictionary<string, int>()
+        {
+            {"Artificer",8},
+        {"Barbarian", 12},
+        {"Bard", 8},
+        {"Cleric", 8},
+        {"Druid", 8},
+        {"Fighter", 10},
+        {"Monk", 8},
+        {"Ranger", 10},
+        {"Rogue", 8},
+        {"Paladin", 10},
+        {"Sorcerer", 6},
+        {"Wizard", 6},
+        {"Warlock", 8}
         };
 
-        int hp = 0;
-        if (hitDice.ContainsKey(Class))
+    public void Start()
+    {
+        int conModValue = 0;
+        int hitDieValue = 0;
+        int baseHP = 0;
+        int abHP = 0;
+        int hpFinal = 0;
+
+        CheckValues(classInput, conScore);
+
+        conModValue = conDict[conScore];
+        hitDieValue = classDict[classInput];
+
+        if (isAvg)
         {
-            int hitDie = hitDice[Class];
-            int totalHitDice = GetTotalHitDice();
-            int conModifier = GetConModifier();
-
-            hp = totalHitDice + hitDie + (totalHitDice * conModifier);
-
+            baseHP = hpAvgCalc(characterLvl, hitDieValue);
         }
-        if (isHillDawrf)
+        else
         {
-            hp += 1;
+            baseHP = hpRolledCalc(characterLvl, hitDieValue);
+        }
+        abHP = hpAbCalc(characterLvl, conModValue);
+        if (isHillDwarf)
+        {
+            hpFinal += characterLvl;
         }
         if (hasTough)
         {
-            hp += (2 * GetTotalHitDice());
+            hpFinal += (characterLvl * 2);
         }
-        return hp;
+
+        hpFinal += baseHP + abHP;
+        printResult(charaterName, characterLvl, classInput, conScore, isHillDwarf, hasTough, isAvg, hpFinal);
     }
-    private int GetTotalHitDice()
+    public void CheckValues(string classInput, int con)
     {
-        return 1 + charaterLvl;
-    }
-    class Program
-    {
-        static void Main(string[] args)
+        if (!this.classDict.ContainsKey(classInput))
         {
-            
-            Player player = new Player("charaterName", "classInput", "charaterLvl", true, true);
-            int totalHP = player.CalculateTotalHP();
-            Console.WriteLine($"Total HP for {player.Name} is {totalHP}");
+            Debug.Log("Class input invalid, set to wizard");
+            this.classInput = "Wizard";
+        }
+
+        if (conScore <= 0)
+        {
+            Debug.Log("Invalid Con Score set to one");
+            this.conScore = 1;
+        }
+        if (conScore >= 31)
+        {
+            Debug.Log("Con Score invalid set to 30");
+            this.conScore = 30;
         }
     }
-    //???
 
+    public int hpAvgCalc(int characterLvl, int hitDieValue)
+    {
+        int hpValue = 0;
+        hpValue = (characterLvl * ((hitDieValue / 2) + 1));
+        return hpValue;
+    }
 
+    public int hpRolledCalc(int characterLvl, int hitDieValue)
+    {
+        int hpValue = 0;
+        for (int i = 0; i < characterLvl; i++)
+        {
+            hpValue += Random.Range(1, (hitDieValue + 1));
+        }
+        return hpValue;
+    }
+
+    public int hpAbCalc(int characterLvl, int conModValue)
+    {
+        int hpValue = 0;
+        if (conModValue < 0)
+        {
+            hpValue = 0;
+            return hpValue;
+        }
+        hpValue = (characterLvl * conModValue);
+        return hpValue;
+    }
+    public void printResult(string name, int level, string className, int con, bool hilldwarf, bool tough, bool average, int hitpoints)
+    {
+        string hilldwarfTerm;
+        string toughTerm;
+        string averageTerm;
+
+        if (hilldwarf)
+        {
+            hilldwarfTerm = "is";
+        }
+        else
+        {
+            hilldwarfTerm = "is not";
+        }
+        if (tough)
+        {
+            toughTerm = "has";
+        }
+        else
+        {
+            toughTerm = "does not have";
+        }
+        if (average)
+        {
+            averageTerm = "averaged";
+        }
+        else
+        {
+            averageTerm = "rolled";
+        }
+
+        Debug.Log("My character " + name + " is a level " + level + " " + className + " with a CON score of " + con + " and " + hilldwarfTerm + " a Hill Dwarf and " + toughTerm + " the Tough feat. I want the HP " + averageTerm + ".");
+        Debug.Log("Your final HP is: " + hitpoints);
+    }
 }
